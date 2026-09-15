@@ -1,0 +1,37 @@
+name: Extract Biscuit Plug ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "*.zip"
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract ZIP
+        run: |
+          mkdir -p extracted
+          unzip -o *.zip -d extracted
+
+          # Move the project files to the repository root
+          cp -r extracted/* .
+
+          rm -rf extracted
+          rm -f *.zip
+
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Extract Biscuit Plug project" || echo "Nothing to commit"
+          git push
